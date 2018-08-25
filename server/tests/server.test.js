@@ -23,14 +23,14 @@ beforeEach((done) => {
 describe('POST /todos', () => {
 
     it('should save todo note to collection', (done) => {
-        request(app).
-            post('/todos').
-            send({text}).
-            expect(200).
-            expect((res) => {
+        request(app)
+            .post('/todos')
+            .send({text})
+            .expect(200)
+            .expect((res) => {
                 expect(res.body.text).toBe(text);
-            }).
-            end((err, res) => {
+            })
+            .end((err, res) => {
                 if (err) {
                     return done(err);
                 }
@@ -45,11 +45,11 @@ describe('POST /todos', () => {
     });
 
     it('should not create todo with bad request', (done) => {
-        request(app).
-            post('\todos').
-            send({}).
-            expect(400).
-            expect((res) => {
+        request(app)
+            .post('\todos')
+            .send({})
+            .expect(400)
+            .expect((res) => {
                 // expect
             }).
             end((err, res) => {
