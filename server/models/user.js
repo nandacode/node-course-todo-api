@@ -32,6 +32,7 @@ var UserSchema = new mongoose.Schema({
     }]
 });
 
+//user instance method
 UserSchema.methods.generateAuthToken = function () {
     var user = this;
     var access = 'auth';
@@ -44,11 +45,34 @@ UserSchema.methods.generateAuthToken = function () {
     });
 };
 
+//user instance method
 UserSchema.methods.toJSON = function () { //override existing method
     var user = this;
     var userObj = this.toObject();
     
     return _.pick(user, ['_id', 'email']);
+};
+
+//User model method
+UserSchema.statics.findByToken = function(token) {
+    var User = this;
+    var decoded;
+
+    try {
+        decoded = jwt.verify(token, 'abc123');
+    } catch (e) {
+        return new Promise((resolve, reject) => {
+            reject();
+        });
+    }
+
+    return User.findOne({
+        _id: decoded._id, 
+        'tokens.access': 'auth',
+        'tokens.token': token
+    }).then((user) => {
+        return user;
+    });
 };
 
 var User = mongoose.model("User", UserSchema);
