@@ -54,6 +54,17 @@ UserSchema.methods.toJSON = function () { //override existing method
     return _.pick(user, ['_id', 'email']);
 };
 
+// Delete token
+UserSchema.methods.removeToken = function(token) {
+    var user = this;
+
+    return user.update({
+        $pull: {
+            tokens: {token}
+        }
+    });
+}
+
 //User model method
 UserSchema.statics.findByToken = function(token) {
     var User = this;
