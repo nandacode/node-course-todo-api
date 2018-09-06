@@ -289,3 +289,58 @@ describe('POST /users', () => {
             .end(done);
     });
 });
+
+describe('POST /users/login', () => {
+    it('should login user and return auth token', (done) => {
+        request(app)
+            .post('/users/login')
+            .send({
+                email: users[1].email,
+                password: users[1].password
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toExist();
+            })
+            .end((err, res) => {
+                if(err){
+                    done(err);
+                }
+
+                User.findOne({
+                    email: users[1].email
+                }).then((user) => {
+                    expect(user.tokens[0]).toInclude({
+                        'access': 'auth',
+                        'token': res.header['x-auth']
+                    });
+                    done();
+                }).catch((e) => done(e));
+            })
+    });
+
+    it('should reject if invalid login', (done) => {
+        request(app)
+            .post('/users/login')
+            .send({
+                email: users[1].email,
+                password: 'dummy'
+            })
+            .expect(400)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toNotExist();
+            })
+            .end((err, res) => {
+                if(err) {
+                    done(err);
+                }
+
+                User.findOne({
+                    email: users[1].email
+                }).then((user) => {
+                    expect(user.tokens.length).toBeFalsy();
+                    done();
+                }).catch((e) => done(e));
+            });
+    });
+});
